@@ -17,7 +17,7 @@ from grelu.model.layers import (
     ChannelTransform,
     Crop,
     Dropout,
-    FlashAttention,
+    #FlashAttention,
     Norm,
     Pool,
 )
@@ -737,10 +737,21 @@ class TransformerBlock(nn.Module):
                 )
                 TransformerBlock.flash_attn_warn = True
 
-            self.mha = FlashAttention(
-                embed_dim=in_len,
+            # self.mha = FlashAttention(
+            #     embed_dim=in_len,
+            #     n_heads=n_heads,
+            #     dropout_p=attn_dropout,
+            #     dtype=dtype,
+            #     device=device,
+            # )
+            self.mha = Attention(
+                in_len=in_len,
                 n_heads=n_heads,
-                dropout_p=attn_dropout,
+                n_pos_features=n_pos_features,
+                key_len=key_len,
+                value_len=value_len,
+                pos_dropout=pos_dropout,
+                attn_dropout=attn_dropout,
                 dtype=dtype,
                 device=device,
             )

@@ -2,11 +2,20 @@
 The Borzoi model architecture and its required classes.
 """
 
-from enformer_pytorch.modeling_enformer import exponential_linspace_int
+#from enformer_pytorch.modeling_enformer import exponential_linspace_int
+import math
 from torch import Tensor, nn
 
 from grelu.model.blocks import ConvBlock, Stem, TransformerTower, UnetTower
 from grelu.model.layers import Activation, Crop
+
+
+def exponential_linspace_int(start, end, num, divisible_by = 1):
+    def _round(x):
+        return int(round(x / divisible_by) * divisible_by)
+
+    base = math.exp(math.log(end / start) / (num - 1))
+    return [_round(start * base**i) for i in range(num)]
 
 
 class BorzoiConvTower(nn.Module):

@@ -86,13 +86,7 @@ def _check_wandb(host:str=DEFAULT_WANDB_HOST) -> None:
     Args:
         host: URL of the Weights & Biases host
     """
-    try:
-        wandb.login(host=host, anonymous="allow")
-    except Exception as _:
-        try:
-            wandb.login(host=host, anonymous="must", timeout=0)
-        except Exception as e:
-            raise RuntimeError(f'Weights & Biases (wandb) is not configured, see {host}/authorize') from e
+    assert wandb.login(host=host, anonymous="allow"), f'Weights & Biases (wandb) is not configured, see {host}/authorize'
 
 
 def projects(host: str=DEFAULT_WANDB_HOST) -> List[str]:

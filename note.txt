@@ -1,0 +1,1 @@
+For now, gRelu seems to cause errors when using enformer-pytorch and flash-attention, so I first commented out these code blocks related to them.

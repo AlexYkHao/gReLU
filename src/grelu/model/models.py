@@ -10,7 +10,6 @@ All models have a `forward` function (inherited from `BaseModel`) which takes
 as input a one-hot encoded sequence tensor of shape (N, 4, length) and return a
 tensor of shape (N, tasks, output_length).
 """
-
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import List, Optional, Union
@@ -26,7 +25,7 @@ from grelu.model.trunks import (
     DilatedConvTrunk,
 )
 from grelu.model.trunks.borzoi import BorzoiTrunk
-from grelu.model.trunks.enformer import EnformerTrunk
+#from grelu.model.trunks.enformer import EnformerTrunk
 from grelu.model.trunks.explainn import ExplaiNNTrunk
 
 
@@ -693,129 +692,129 @@ class ExplaiNNModel(nn.Module):
         )
 
 
-class EnformerModel(BaseModel):
-    """
-    Enformer model architecture.
+# class EnformerModel(BaseModel):
+#     """
+#     Enformer model architecture.
 
-    Args:
-        n_tasks: Number of tasks for the model to predict
-        n_conv: Number of convolutional/pooling blocks
-        channels: Number of output channels for the convolutional tower
-        n_transformers: Number of stacked transformer blocks
-        n_heads: Number of attention heads
-        key_len: Length of the key vectors
-        value_len: Length of the value vectors.
-        pos_dropout: Dropout probability in the positional embeddings
-        attn_dropout: Dropout probability in the output layer
-        ff_droppout: Dropout probability in the linear feed-forward layers
-        crop_len: Number of positions to crop at either end of the output
-        final_act_func: Name of the activation function to use in the final layer
-        final_pool_func: Name of the pooling function to apply to the final output.
-            If None, no pooling will be applied at the end.
-        dtype: Data type for the layers.
-        device: Device for the layers.
-    """
+#     Args:
+#         n_tasks: Number of tasks for the model to predict
+#         n_conv: Number of convolutional/pooling blocks
+#         channels: Number of output channels for the convolutional tower
+#         n_transformers: Number of stacked transformer blocks
+#         n_heads: Number of attention heads
+#         key_len: Length of the key vectors
+#         value_len: Length of the value vectors.
+#         pos_dropout: Dropout probability in the positional embeddings
+#         attn_dropout: Dropout probability in the output layer
+#         ff_droppout: Dropout probability in the linear feed-forward layers
+#         crop_len: Number of positions to crop at either end of the output
+#         final_act_func: Name of the activation function to use in the final layer
+#         final_pool_func: Name of the pooling function to apply to the final output.
+#             If None, no pooling will be applied at the end.
+#         dtype: Data type for the layers.
+#         device: Device for the layers.
+#     """
 
-    def __init__(
-        self,
-        n_tasks: int,
-        # Conv
-        n_conv: int = 7,
-        channels: int = 1536,
-        # Transformer
-        n_transformers: int = 11,
-        n_heads: int = 8,
-        key_len: int = 64,
-        attn_dropout: float = 0.05,
-        pos_dropout: float = 0.01,
-        ff_dropout: float = 0.4,
-        # Crop
-        crop_len: int = 0,
-        # Head
-        final_act_func: Optional[str] = None,
-        final_pool_func: Optional[str] = "avg",
-        dtype=None,
-        device=None,
-    ) -> None:
-        super().__init__(
-            embedding=EnformerTrunk(
-                n_conv=n_conv,
-                channels=channels,
-                n_transformers=n_transformers,
-                n_heads=n_heads,
-                key_len=key_len,
-                attn_dropout=attn_dropout,
-                pos_dropout=pos_dropout,
-                ff_dropout=ff_dropout,
-                crop_len=crop_len,
-                dtype=dtype,
-                device=device,
-            ),
-            head=ConvHead(
-                n_tasks=n_tasks,
-                in_channels=2 * channels,
-                act_func=final_act_func,
-                norm=False,
-                pool_func=final_pool_func,
-                dtype=dtype,
-                device=device,
-            ),
-        )
+#     def __init__(
+#         self,
+#         n_tasks: int,
+#         # Conv
+#         n_conv: int = 7,
+#         channels: int = 1536,
+#         # Transformer
+#         n_transformers: int = 11,
+#         n_heads: int = 8,
+#         key_len: int = 64,
+#         attn_dropout: float = 0.05,
+#         pos_dropout: float = 0.01,
+#         ff_dropout: float = 0.4,
+#         # Crop
+#         crop_len: int = 0,
+#         # Head
+#         final_act_func: Optional[str] = None,
+#         final_pool_func: Optional[str] = "avg",
+#         dtype=None,
+#         device=None,
+#     ) -> None:
+#         super().__init__(
+#             embedding=EnformerTrunk(
+#                 n_conv=n_conv,
+#                 channels=channels,
+#                 n_transformers=n_transformers,
+#                 n_heads=n_heads,
+#                 key_len=key_len,
+#                 attn_dropout=attn_dropout,
+#                 pos_dropout=pos_dropout,
+#                 ff_dropout=ff_dropout,
+#                 crop_len=crop_len,
+#                 dtype=dtype,
+#                 device=device,
+#             ),
+#             head=ConvHead(
+#                 n_tasks=n_tasks,
+#                 in_channels=2 * channels,
+#                 act_func=final_act_func,
+#                 norm=False,
+#                 pool_func=final_pool_func,
+#                 dtype=dtype,
+#                 device=device,
+#             ),
+#         )
 
 
-class EnformerPretrainedModel(BaseModel):
-    """
-    Borzoi model with published weights (ported from Keras).
-    """
+# class EnformerPretrainedModel(BaseModel):
+#     """
+#     Borzoi model with published weights (ported from Keras).
+#     """
 
-    def __init__(
-        self,
-        n_tasks: int,
-        n_transformers: int = 11,
-        # head
-        crop_len=0,
-        final_pool_func="avg",
-        dtype=None,
-        device=None,
-    ):
-        model = EnformerModel(
-            crop_len=crop_len,
-            n_tasks=5313,
-            channels=1536,
-            n_transformers=11,
-            n_heads=8,
-            key_len=64,
-            attn_dropout=0.05,
-            pos_dropout=0.01,
-            ff_dropout=0.4,
-            final_act_func=None,
-            final_pool_func=None,
-            dtype=dtype,
-            device=device,
-        )
+#     def __init__(
+#         self,
+#         n_tasks: int,
+#         n_transformers: int = 11,
+#         # head
+#         crop_len=0,
+#         final_pool_func="avg",
+#         dtype=None,
+#         device=None,
+#     ):
+#         model = EnformerModel(
+#             crop_len=crop_len,
+#             n_tasks=5313,
+#             channels=1536,
+#             n_transformers=11,
+#             n_heads=8,
+#             key_len=64,
+#             attn_dropout=0.05,
+#             pos_dropout=0.01,
+#             ff_dropout=0.4,
+#             final_act_func=None,
+#             final_pool_func=None,
+#             dtype=dtype,
+#             device=device,
+#         )
 
-        # Load state dict
-        from grelu.resources import get_artifact
+#         # Load state dict
+#         from grelu.resources import get_artifact
 
-        art = get_artifact("human_state_dict", project="enformer", alias="latest")
-        with TemporaryDirectory() as d:
-            art.download(d)
-            state_dict = torch.load(Path(d) / "human.h5")
+#         art = get_artifact("human_state_dict", project="enformer", alias="latest")
+#         with TemporaryDirectory() as d:
+#             art.download(d)
+#             state_dict = torch.load(Path(d) / "human.h5")
 
-        model.load_state_dict(state_dict)
+#         model.load_state_dict(state_dict)
 
-        # Fix depth
-        model.embedding.transformer_tower.blocks = (
-            model.embedding.transformer_tower.blocks[:n_transformers]
-        )
+#         # Fix depth
+#         model.embedding.transformer_tower.blocks = (
+#             model.embedding.transformer_tower.blocks[:n_transformers]
+#         )
 
-        # Change head
-        head = ConvHead(
-            n_tasks=n_tasks,
-            in_channels=3072,
-            pool_func=final_pool_func,
-            dtype=dtype,
-            device=device,
-        )
+#         # Change head
+#         head = ConvHead(
+#             n_tasks=n_tasks,
+#             in_channels=3072,
+#             pool_func=final_pool_func,
+#             dtype=dtype,
+#             device=device,
+#         )
 
-        super().__init__(embedding=model.embedding, head=head)
+#         super().__init__(embedding=model.embedding, head=head)
